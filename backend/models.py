@@ -9,3 +9,12 @@ class Category(models.Model):
         return self.name
     class Meta:
         db_table = "category"
+
+class Brand(models.Model):
+    id = models.BigAutoField(primary_key = True)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table = "brand"
