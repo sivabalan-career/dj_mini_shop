@@ -6,6 +6,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 
+from backend.manager import CustomerUserManager
+
+
 class Gender(models.TextChoices):
     MALE = 'M', _('Male')
     FEMALE = 'F', _('Female')
@@ -20,11 +23,11 @@ class GenderedImageField(models.ImageField):
             if gender == Gender.MALE:
                 value = 'profile/male_avatar.png'
             elif gender == Gender.FEMALE:
-                value = 'profile/female_avatar.png'
+                value = 'profile/female_avatar.jpg'
             else:
-                value = 'profile/default_image.jpg'
+                value = 'profile/default_image.png'
 
-        elif model_instance.gender != getattr(model_instance,f"{self.attname}_gender_cache", none):
+        elif model_instance.gender != getattr(model_instance,f"{self.attname}_gender_cache",None):
             gender = model_instance.gender
             if gender == Gender.MALE:
                 value = 'profile/male_avatar.png'
@@ -41,7 +44,7 @@ class CustomUser(AbstractUser):
 
     email = models.EmailField(_('email address'), unique=True)
 
-    gender = models.CharField(max_length=1, choices=Gender.choices,default=Gender.Male)
+    gender = models.CharField(max_length=1, choices=Gender.choices,default=Gender.MALE)
 
     image = GenderedImageField(upload_to='profile/', blank=True)
 
