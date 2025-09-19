@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import register
-from backend.models import Category, Brand, Product
-
+from backend.models import Category, Brand, Product, OrderItem, Cart, Order
 
 from django.utils.html import format_html
 from backend.models import CustomUser
@@ -52,8 +51,42 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('name', 'image_tag',)
+
+    def image_tag(self, obj):
+        return format_html('<img src = "{}" width = "150" height="150" />'.format(obj.image_path.url))
+
+    image_tag.short_description = 'Image'
+
 
 @register(Product)
+
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'price')
+    list_display = ('category','brand','price','qty','name','image_tag',)
+
+    def image_tag(self, obj):
+        return format_html('<img src = "{}" width = "150" height="150" />'.format(obj.image_path.url))
+
+    image_tag.short_description = 'Image'
+
+
+
+class CartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'custom_user', 'product', 'qty',)
+
+
+admin.site.register(Cart, CartAdmin)
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+    'id', 'custom_user', 'order_number', 'order_date', 'total_amount', 'order_status', 'payment_method',)
+    inlines = [OrderItemInline]
+
+
+admin.site.register(Order, OrderAdmin)
