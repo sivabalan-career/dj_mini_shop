@@ -1,3 +1,5 @@
+import hashlib
+
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from django.utils.translation import gettext_lazy as _
@@ -8,13 +10,16 @@ from backend.models import Category, Brand, Product, CustomUser, Cart, OrderItem
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    avatar = serializers.SerializerMethodField()  # <-- Add avatar field
 
     class Meta:
         model = CustomUser
         fields = [
+            'name',
             'gender',
             'password',
-            'email'
+            'email',
+            'avatar',
         ]
 
     def create(self, validated_data):
@@ -26,6 +31,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user.is_active = True
         user.save()
         return user
+
+    read_only_fields = ['avatar']
+
+    def get_avatar(self, obj):
+        """
+        Generate Gravatar URL based on user's email
+        """
+        email = obj.email.strip().lower()
+        email_hash = hashlib.md5(email.encode('utf-8')).hexdigest()
+        return f"https://gravatar.com/avatar/{email_hash}"
 
 class EmailAuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(label=_("Email"))
